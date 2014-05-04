@@ -1,0 +1,145 @@
+<html>
+    <head>
+        <title> Video Api Normaliser Thing</title>
+        <script type="application/javascript" src="lib/Vidii.js"></script>
+    </head>
+    <body>
+        <center>
+            <div id="Player" style="width:720px; height:480px;">
+                <div id="vimeoDiv" style="position: absolute; width:720px; height:480px;"></div>
+
+                <div id="dailymotionDiv" style="position: absolute; width:720px; height:480px;"></div>
+
+                <div id="youtubeDiv" style="position: absolute; width:720px; height:480px;"></div>
+            </div>
+
+            <div id="controls">
+                <button onClick="Video.Play();"> Play </button>
+                <button onClick="Video.Pause();"> Pause </button>
+                <input id="cueID" type="text" value="4PCgJGxz-FU" style="width:100px;"/> <button onClick="Video.CueVideoByID(document.getElementById('cueID').value);"> Cue Video </button>
+                <input id="seekTime" type="text" value="10" style="width:25px;"/> <button onClick="Video.SeekTo(document.getElementById('seekTime').value);"> Seek To </button>
+                <button onClick="document.getElementById('currentTime').innerHTML = Video.GetTime();"> Get Time </button> <span id="currentTime">0</span></br>
+
+                <button onClick="document.getElementById('playState').innerHTML = Video.PlayStateLookUp[Video.GetPlayState()];"> Get Play State </button> <span id="playState">0</span>
+                <button onClick="Video.Clear();"> Clear </button>
+                <button onClick="Video.Show(true);"> Show </button>
+                <button onClick="Video.Show(false);"> Hide </button>
+            </div>
+
+            <div id="console" style="height:300px; overflow-y: scroll;">
+                <h2>Console:</h2>
+            </div>
+        </center>
+
+        <div style="position: absolute; top: 0px;">
+            <center>
+                <h3> Choose Player </h3>
+                <button onClick="SwapToPlayer('youtube');"> Youtube </button><br/>
+                <button onClick="SwapToPlayer('dailymotion');"> Dailymotion </button><br/>
+                <button onClick="SwapToPlayer('vimeo');"> Vimeo </button><br/>
+            </center>
+        </div>
+
+        <div style="position: absolute; top: 0px; right:0px;">
+            <center>
+                <h3> Test Videos: </h3>
+                <button onClick="PlayVidTest('youtube', 'TrgxHDoe8gA');"> Youtube - TrgxHDoe8gA </button><br/>
+                <button onClick="PlayVidTest('youtube', '_mTRvJ9fugM');"> Youtube - _mTRvJ9fugM </button><br/>
+
+                <button onClick="PlayVidTest('dailymotion', 'xobd1u');"> Dailymotion - xobd1u </button><br/>
+                <button onClick="PlayVidTest('dailymotion', 'xzije0');"> Dailymotion - xzije0 </button><br/>
+
+                <button onClick="PlayVidTest('vimeo', '5833446');"> Vimeo - 5833446 </button><br/>
+                <button onClick="PlayVidTest('vimeo', '87008050');"> Vimeo - 87008050 </button><br/>
+            </center>
+        </div>
+
+            <script>
+                var Video = new Vidii([
+                    {type:"youtube", divId:"youtubeDiv"},
+                    {type:"dailymotion", divId:"dailymotionDiv"},
+                    {type:"vimeo", divId:"vimeoDiv"}
+                ]);
+
+                Video.SetPlayer('dailymotion');
+                Video.Show(false);
+                Video.SetPlayer('vimeo');
+                Video.Show(false);
+
+                Video.SetPlayer("youtube");
+
+                Video.RegisterEvent("onPlayerReady", onPlayerReady);
+                Video.RegisterEvent("onPlayStateChangedInternal", onPlayStateChangedInternal);
+                Video.RegisterEvent("onPlayStateChangedExternal", onPlayStateChangedExternal);
+                Video.RegisterEvent("onVideoLoaded", onVideoLoaded);
+                Video.RegisterEvent("onAllPlayersReady", onAllPlayersReady);
+
+                function onPlayerReady(data)
+                {
+                    log("onPlayerReady: " + data.type);
+                    Video.SetPlayer(data.type);
+                    Video.Show(false);
+                }
+
+                function onAllPlayersReady()
+                {
+                    Video.SetPlayer('youtube');
+                    Video.Show(true);
+
+                    log("All players Loaded! :D");
+                }
+
+                function onPlayStateChangedInternal(data)
+                {
+                    log("onPlayStateChangedInternal: " + JSON.stringify(data));
+                }
+
+                function onPlayStateChangedExternal(data)
+                {
+                    log("onPlayStateChangedExternal: " + JSON.stringify(data));
+                }
+
+                function onVideoLoaded(data)
+                {
+                    log("onVideoLoaded: " + JSON.stringify(data));
+                }
+
+                // Misc
+                var CON = document.getElementById("console");
+                function log(msg)
+                {
+                    var line = document.createElement("div");
+                    line.innerHTML = msg + "<br/>";
+                    CON.appendChild(line);
+
+                    CON.scrollTop = CON.scrollHeight;
+                }
+
+                function HideAllPlayers()
+                {
+                    for (var ety in Video.SuportedPlayers)
+                    {
+                        Video.SetPlayer(ety);
+                        Video.Show(false);
+                    }
+                }
+
+                function SwapToPlayer(player)
+                {
+                    HideAllPlayers();
+                    Video.Clear();
+                    Video.SetPlayer(player);
+                    Video.Show(true);
+                }
+
+                function PlayVidTest(type, id)
+                {
+                    Video.Show(false);
+                    Video.Clear();
+                    Video.SetPlayer(type);
+                    Video.CueVideoByID(id);
+                    Video.Show(true);
+                }
+            </script>
+    </body>
+</html>
