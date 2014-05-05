@@ -33,7 +33,7 @@ var Video = new Vidii([
   
 // Set a player and paly a video
 Video.SetPlayer("youtube");
-Video.CueVideoByID("soemvideoid");
+Video.CueVideoByID("dJmyziro4ws");
 Video.Play();
 ```
 
